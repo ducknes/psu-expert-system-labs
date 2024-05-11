@@ -1,3 +1,4 @@
+% open in encoding windows-866
 domains
 	BNO, RNO = integer
 	COND = BNO*
