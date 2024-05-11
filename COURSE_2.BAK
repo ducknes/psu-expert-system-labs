@@ -1,0 +1,114 @@
+domains
+	BNO, RNO = integer
+	COND = BNO*
+	H = RNO*
+	CAT = SYMBOL
+database
+	yes(BNO)
+	no(BNO)
+predicates
+	rule(RNO, CAT, CAT, COND)
+	cond(BNO, string)
+	exp
+	menu
+	process(integer) 
+	cconsult(CAT)
+	clear
+	work(H, CAT)
+	check(RNO, H, COND)
+	question(H, RNO, BNO, string)
+	answer(H, RNO, string, BNO, integer)
+clauses
+	rule(1, "‘¥à¨ «", "Œ¨­¨-á¥à¨ «", [1]).
+	rule(2, "‘¥à¨ «", "Œ­®£®á¥§®­­ë©", [2]).
+	
+	rule(3, "Œ¨­¨-á¥à¨ «", "—¥à­®¡ë«ì", [4, 9, 14, 13]).
+	rule(4, "Œ¨­¨-á¥à¨ «", "‚­ãâà¨ ã¡¨©æë", [3, 7, 8, 14]).
+	rule(5, "Œ¨­¨-á¥à¨ «", "’à¥¯ ç¨", [3, 6, 14, 16]).
+	rule(6, "Œ¨­¨-á¥à¨ «", "•®¤ ª®à®«¥¢ë", [4, 10, 12, 9]).
+
+	rule(7, "Œ­®£®á¥§®­­ë©", "˜¥à«®ª", [4, 8, 14, 9]).
+	rule(8, "Œ­®£®á¥§®­­ë©", "’à¨££¥à", [3, 6, 14, 13]).
+	rule(9, "Œ­®£®á¥§®­­ë©", "€¢ â à: ‹¥£¥­¤  ®¡ € ­£¥", [4, 5, 12, 15]).
+	rule(10, "Œ­®£®á¥§®­­ë©", "€â ª  â¨â ­®¢", [4, 5, 6, 16]).
+	rule(11, "Œ­®£®á¥§®­­ë©", "‚ ¬¯¨àë áà¥¤­¥© ¯®«®áë", [3, 5, 11, 14]).
+	rule(12, "Œ­®£®á¥§®­­ë©", "Œ¥â®¤", [3, 7, 8, 14]).
+	rule(13, "Œ­®£®á¥§®­­ë©", "‚® ¢á¥ âï¦ª¨¥", [4, 8, 14, 9]).
+	
+	cond(1, "Œ¨­¨-á¥à¨ «").
+	cond(2, "Œ­®£®á¥§®­­ë©").
+
+	cond(3, "®áá¨©áª¨©").
+	cond(4, "‡ àã¡¥¦­ë©").
+
+	cond(5, "€­¨¬¥").
+	cond(6, "®¥¢¨ª").
+	cond(7, "’à¨««¥à").
+	cond(8, "„¥â¥ªâ¨¢").
+	cond(9, "„à ¬ ").
+	cond(10, "Š®¬¥¤¨ï").
+	cond(11, "Œ¥«®¤à ¬ ").
+	cond(12, "à¨ª«îç¥­¨¥").
+	cond(13, "” ­â áâ¨ª ").
+	cond(14, "Šà¨¬¨­ «").
+	cond(15, "„¥âáª¨©").
+	cond(16, "“¦ áë").
+	
+	exp:- 
+		makewindow(1,7,7,"‘(1)",0,0,25,80), 
+		menu, nl, 
+		write("Ž…‹ ¤«ï ¢ëå®¤  -> "), 
+		readchar(_), exit.
+	menu:-
+		write("1, Š®­áã«ìâ æ¨ï"), nl,
+		write("2, ‚ëå®¤"), nl,
+		write("‚ è ¢ë¡®à (1 ¨«¨ 2) -> "),
+		readint(Ch), process(Ch).
+	
+	process(1):-
+		cconsult("‘¥à¨ «"), clear.
+	process(2):-
+		removewindow.
+	
+	cconsult(X):- work([],X), !.
+	cconsult(_):- 
+		nl, write("ˆ§¢¨­¨â¥, ­® ¤«ï ¢ á ­¥â ¯®¤å®¤ïé¥£® á¥à¨ « !").
+	cconsult(_).
+	
+	work(_, X):- 
+		not(rule(_,X,_,_)), !, nl,
+		write("‚ è ¢ë¡®à -> ", X), nl.
+	work(H, X):- 
+		rule(RNO, X, NY, COND),
+		check(RNO, H, COND),
+		work([RNO|H], NY).
+	
+	check(RNO, H, [BNO|REST]):-
+		yes(BNO),!,
+		check(RNO, H, REST).
+	check(_,_,[BNO|_]):-
+		no(BNO),!, fail.
+	check(RNO, H, [BNO|REST]):-
+		cond(BNO, TEXT),
+		question(H, RNO, BNO, TEXT),
+		check(RNO, H, REST).
+	check(_,_,[]).
+	
+	question(H, RNO, BNO, TEXT):-
+		write("‚®¯à®á: ", TEXT, "?"),
+		write(" (1 ¨«¨ 2) -> "),
+		readint(RESP),
+		answer(H, RNO, TEXT, BNO, RESP).
+	answer(_,_,_,BNO, 1):-
+		asserta(yes(BNO)), 
+		write("¤ "), nl.
+	answer(_,_,_,BNO,2):-
+		asserta(no(BNO)),
+		write("­¥â"), nl, fail.
+	
+	clear:- 
+		retract(yes(_)), fail;
+		retract(no(_)), fail.
+	clear.
+goal
+	exp.
